@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useForm, useFieldArray, Controller } from 'react-hook-form'
+import { useForm, useFieldArray } from 'react-hook-form'
 import Select from 'react-select'
 
 function SingleItemWithArray(props) {
@@ -17,7 +17,7 @@ function SingleItemWithArray(props) {
                 css: '',
                 js: '',
                 libraries: [],
-                fonts: [{ type: 'font', url: '' }],
+                fonts: [],
             },
         },
     })
