@@ -8,7 +8,14 @@ function SingleItemWithArray(props) {
 
     const [submittedValues, setSubmittedValues] = useState(null)
 
-    const { register, control, handleSubmit, getValues, formState } = useForm({
+    const {
+        register,
+        control,
+        handleSubmit,
+        getValues,
+        resetField,
+        formState,
+    } = useForm({
         mode: 'onChange',
         defaultValues: {
             projects: {
@@ -17,7 +24,7 @@ function SingleItemWithArray(props) {
                 css: '',
                 js: '',
                 libraries: [],
-                fonts: [],
+                fonts: [{ type: 'font', url: '' }],
             },
         },
     })
@@ -103,7 +110,6 @@ function SingleItemWithArray(props) {
 
                 {values.projects.libraries.length > 0 &&
                     values.projects.libraries.map((library, index) => {
-                        console.log('libraryFields', libraryFields)
                         return (
                             <span key={library.label}>
                                 {library.label}
@@ -130,7 +136,6 @@ function SingleItemWithArray(props) {
                 />
 
                 {values.projects.fonts.map((font, index) => {
-                    console.log('HERE', index, font, fields[index].id)
                     return (
                         <div key={fields[index].id}>
                             <input
@@ -146,7 +151,16 @@ function SingleItemWithArray(props) {
                                 id={fields[index].id}
                                 key={fields[index].id}
                             />
-                            <button onClick={remove}>x</button>
+                            <button
+                                onClick={() => {
+                                    if (index === 0) {
+                                        return resetField(`projects.fonts`)
+                                    }
+                                    return remove(index)
+                                }}
+                            >
+                                x
+                            </button>
                         </div>
                     )
                 })}
