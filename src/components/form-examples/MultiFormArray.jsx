@@ -27,10 +27,10 @@ function MultiFormArray(props) {
     })
 
     const { isDirty, dirtyFields } = formState
+    console.log('isDirty', isDirty)
     console.log('dirtyFields', dirtyFields)
 
     const values = getValues()
-    // console.log('values', values)
 
     const onSubmit = (data) => {
         console.log('data', data)
@@ -48,6 +48,7 @@ function MultiFormArray(props) {
                                 html: '',
                                 css: '',
                                 js: '',
+                                libraries: [],
                                 fonts: [{ type: 'font', url: '' }],
                                 id: uuidv4(),
                             },
@@ -95,9 +96,20 @@ function MultiFormArray(props) {
                                         />
                                     )}
                                     <div>
+                                        libraries:
+                                        <FormLibraries
+                                            register={register}
+                                            control={control}
+                                            index={index}
+                                            resetField={resetField}
+                                            values={
+                                                values.projects[index].libraries
+                                            }
+                                        />
+                                    </div>
+                                    <div>
                                         fonts:
                                         <FormFonts
-                                            reset={reset}
                                             register={register}
                                             control={control}
                                             index={index}
@@ -119,10 +131,63 @@ function MultiFormArray(props) {
 }
 export default MultiFormArray
 
-const FormFonts = ({ register, reset, resetField, index, values, control }) => {
-    // console.log('values', values)
+const FormLibraries = ({ register, resetField, index, values, control }) => {
+    const [selectedOptions, setSelectedOptions] = useState([])
 
-    const { fields, append, remove } = useFieldArray({
+    const { append, remove } = useFieldArray({
+        name: `projects.${index}.libraries`,
+        control,
+    })
+
+    const handleMultiChange = (selectedOption) => {
+        setSelectedOptions((prev) => {
+            return [...prev, selectedOption.value]
+        })
+        append(selectedOption)
+    }
+
+    const removeLib = (index) => {
+        const updatedSelectedOption = [...selectedOptions]
+        updatedSelectedOption.splice(index, 1)
+
+        setSelectedOptions(updatedSelectedOption)
+        return remove(index)
+    }
+
+    return (
+        <>
+            {values.length > 0 &&
+                values.map((library, index) => {
+                    return (
+                        <span key={library.label}>
+                            {library.label}
+                            <button
+                                onClick={() => {
+                                    removeLib(index)
+                                }}
+                            >
+                                x
+                            </button>
+                        </span>
+                    )
+                })}
+
+            <Select
+                options={[
+                    { label: 'a', value: 'a' },
+                    { label: 'b', value: 'b' },
+                    { label: 'c', value: 'c' },
+                ].filter((option) => {
+                    return !selectedOptions.includes(option.value)
+                })}
+                onChange={handleMultiChange}
+            />
+        </>
+    )
+}
+
+const FormFonts = ({ register, resetField, index, values, control }) => {
+    const { fields } = useFieldArray({
         name: `projects.${index}.fonts`,
         control,
     })
@@ -131,64 +196,27 @@ const FormFonts = ({ register, reset, resetField, index, values, control }) => {
         <>
             <button
                 onClick={() => {
-                    console.log('values', values)
                     return resetField(`projects.${index}.fonts`, {
                         defaultValue: [...values, { type: 'font', url: '' }],
                         keepDirty: true,
                         keepTouched: true,
                         keepError: true,
                     })
-                    // append({ type: 'font', url: '' })
                 }}
             >
                 append
             </button>
             {fields.map((field, fontIndex) => {
-                console.log('field', field)
                 return (
                     <input
                         key={field.id}
-                        // {...register(
-                        //     `projects.${index}.fonts.${fontIndex}.url`,
-                        //     {
-                        //         onChange: (e) => {
-                        //             console.log('e', e)
-                        //             e.preventDefault()
-                        //             return {
-                        //                 type: 'font',
-                        //                 url: e.target.value,
-                        //             }
-                        //         },
-                        //     }
-                        // )}
                         name={`projects[${index}].fonts[${fontIndex}].url`}
                         {...register(
                             `projects[${index}].fonts[${fontIndex}].url`
                         )}
-                        // defaultValue={{ type: 'font', url: '' }}
                     />
                 )
             })}
         </>
     )
-
-    // return values.projects[0].fonts.map((font, index) => {
-    //     return (
-    //         <div key={fields[index].id}>
-    //             <input
-    //                 key={fields[index].id}
-    // {...register(`projects.0.fonts.${index}.url`, {
-    //     onChange: (e) => {
-    //         e.preventDefault()
-    //         return {
-    //             type: 'font',
-    //             url: e.target.value,
-    //         }
-    //     },
-    // })}
-    //             />
-    //             <button onClick={remove}>x</button>
-    //         </div>
-    //     )
-    // })
 }
