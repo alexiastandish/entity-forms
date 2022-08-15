@@ -8,8 +8,8 @@ import MultiFormArray from './components/form-examples/MultiFormArray'
 function App() {
     return (
         <div className="App">
-            {/* <SingleItemWithArray /> */}
-            <MultiFormArray />
+            <SingleItemWithArray />
+            {/* <MultiFormArray /> */}
         </div>
     )
 }

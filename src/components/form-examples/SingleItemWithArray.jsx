@@ -11,16 +11,14 @@ function SingleItemWithArray(props) {
     const { register, control, handleSubmit, getValues, formState } = useForm({
         mode: 'onChange',
         defaultValues: {
-            projects: [
-                {
-                    title: '',
-                    html: '',
-                    css: '',
-                    js: '',
-                    libraries: [],
-                    fonts: [{ type: 'font', url: '' }],
-                },
-            ],
+            projects: {
+                title: '',
+                html: '',
+                css: '',
+                js: '',
+                libraries: [],
+                fonts: [{ type: 'font', url: '' }],
+            },
         },
     })
 
@@ -29,20 +27,24 @@ function SingleItemWithArray(props) {
     console.log('isDirty', isDirty)
     console.log('dirtyFields', dirtyFields)
 
-    const { append: appendLibrary, remove: removeLibrary } = useFieldArray({
-        name: `projects.0.libraries`,
+    const {
+        fields: libraryFields,
+        append: appendLibrary,
+        remove: removeLibrary,
+    } = useFieldArray({
+        name: `projects.libraries`,
         control,
     })
 
     const { fields, append, remove } = useFieldArray({
-        name: `projects.0.fonts`,
+        name: `projects.fonts`,
         control,
     })
 
     const values = getValues()
 
     const onSubmit = ({ projects }) => {
-        const data = projects[0]
+        const data = projects
 
         const validFonts = []
         data.fonts.map((font) => {
@@ -87,21 +89,21 @@ function SingleItemWithArray(props) {
                 <button onClick={() => setActiveFile('css')}>css</button>
                 <button onClick={() => setActiveFile('js')}>js</button>
             </div>
+            <h1>isDirty: {JSON.stringify(isDirty)}</h1>
             <form onSubmit={handleSubmit(onSubmit)}>
-                <input {...register(`projects.0.title`)} />
+                <input {...register(`projects.title`)} />
 
                 {activeFile === 'html' && (
-                    <input {...register(`projects.0.html`)} />
+                    <input {...register(`projects.html`)} />
                 )}
                 {activeFile === 'css' && (
-                    <input {...register(`projects.0.css`)} />
+                    <input {...register(`projects.css`)} />
                 )}
-                {activeFile === 'js' && (
-                    <input {...register(`projects.0.js`)} />
-                )}
+                {activeFile === 'js' && <input {...register(`projects.js`)} />}
 
-                {values.projects[0].libraries.length > 0 &&
-                    values.projects[0].libraries.map((library, index) => {
+                {values.projects.libraries.length > 0 &&
+                    values.projects.libraries.map((library, index) => {
+                        console.log('libraryFields', libraryFields)
                         return (
                             <span key={library.label}>
                                 {library.label}
@@ -127,12 +129,12 @@ function SingleItemWithArray(props) {
                     onChange={handleMultiChange}
                 />
 
-                {values.projects[0].fonts.map((font, index) => {
+                {values.projects.fonts.map((font, index) => {
+                    console.log('HERE', index, font, fields[index].id)
                     return (
                         <div key={fields[index].id}>
                             <input
-                                key={fields[index].id}
-                                {...register(`projects.0.fonts.${index}.url`, {
+                                {...register(`projects.fonts.${index}.url`, {
                                     onChange: (e) => {
                                         e.preventDefault()
                                         return {
@@ -141,6 +143,8 @@ function SingleItemWithArray(props) {
                                         }
                                     },
                                 })}
+                                id={fields[index].id}
+                                key={fields[index].id}
                             />
                             <button onClick={remove}>x</button>
                         </div>
@@ -153,7 +157,7 @@ function SingleItemWithArray(props) {
 
                 <input type="submit" />
             </form>
-            {dirtyFields.projects && JSON.stringify(dirtyFields.projects[0])}
+            {dirtyFields.projects && JSON.stringify(dirtyFields.projects)}
             <br />
             <div>
                 Submitted Data: <br />
@@ -187,9 +191,7 @@ function SingleItemWithArray(props) {
                         </div>
                         <div>
                             <span style={{ color: 'red' }}>fonts:</span>
-                            {submittedValues.fonts.map((font) => {
-                                return <p key={font}>{font}</p>
-                            })}
+                            {JSON.stringify(submittedValues.fonts)}
                         </div>
                     </div>
                 )}
